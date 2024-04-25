@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>
+        [SonarQube] 使用 Docker 架設 SonarQube 與 CNES Report Plugin 匯出 PDF 報告，結合Intellij IDEA Plugin: SonarAnalyzer 同時進行源碼掃描與遠端同步產製報 - HackMD
+    </title>
+    <link rel="icon" type="image/png" href="https://hackmd.io/favicon.png">
+    <link rel="apple-touch-icon" href="https://hackmd.io/apple-touch-icon.png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css" integrity="sha256-3iu9jgsy9TpTwXKb7bNQzqWekRX7pPK+2OLj3R922fo=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/octicons/3.5.0/octicons.min.css" integrity="sha256-QiWfLIsCT02Sdwkogf6YMiQlj4NE84MKkzEMkZnMGdg=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/themes/prism.min.css" integrity="sha256-vtR0hSWRc3Tb26iuN2oZHt3KRUomwTufNIf5/4oeCyg=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@hackmd/emojify.js@2.1.0/dist/css/basic/emojify.min.css" integrity="sha256-UOrvMOsSDSrW6szVLe8ZDZezBxh5IoIfgTwdNDgTjiU=" crossorigin="anonymous" />
+    <style>
+        @import url(https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i|Source+Code+Pro:300,400,500|Source+Sans+Pro:300,300i,400,400i,600,600i|Source+Serif+Pro&subset=latin-ext);.hljs{background:#fff;color:#333;display:block;overflow-x:auto;padding:.5em}.hljs-comment,.hljs-meta{color:#969896}.hljs-emphasis,.hljs-quote,.hljs-string,.hljs-strong,.hljs-template-variable,.hljs-variable{color:#df5000}.hljs-keyword,.hljs-selector-tag,.hljs-type{color:#a71d5d}.hljs-attribute,.hljs-bullet,.hljs-literal,.hljs-number,.hljs-symbol{color:#0086b3}.hljs-built_in,.hljs-builtin-name{color:#005cc5}.hljs-name,.hljs-section{color:#63a35c}.hljs-tag{color:#333}.hljs-attr,.hljs-selector-attr,.hljs-selector-class,.hljs-selector-id,.hljs-selector-pseudo,.hljs-title{color:#795da3}.hljs-addition{background-color:#eaffea;color:#55a532}.hljs-deletion{background-color:#ffecec;color:#bd2c00}.hljs-link{text-decoration:underline}.markdown-body{word-wrap:break-word;font-size:16px;line-height:1.5}.markdown-body:after,.markdown-body:before{content:"";display:table}.markdown-body:after{clear:both}.markdown-body>:first-child{margin-top:0!important}.markdown-body>:last-child{margin-bottom:0!important}.markdown-body a:not([href]){color:inherit;text-decoration:none}.markdown-body .absent{color:#c00}.markdown-body .anchor{float:left;line-height:1;margin-left:-20px;padding-right:4px}.markdown-body .anchor:focus{outline:none}.markdown-body blockquote,.markdown-body dl,.markdown-body ol,.markdown-body p,.markdown-body pre,.markdown-body table,.markdown-body ul{margin-bottom:16px;margin-top:0}.markdown-body hr{background-color:#e7e7e7;border:0;height:.25em;margin:24px 0;padding:0}.markdown-body blockquote{border-left:.25em solid #ddd;color:#777;font-size:16px;padding:0 1em}.markdown-body blockquote>:first-child{margin-top:0}.markdown-body blockquote>:last-child{margin-bottom:0}.markdown-body kbd,.popover kbd{background-color:#fcfcfc;border:1px solid;border-color:#ccc #ccc #bbb;border-radius:3px;box-shadow:inset 0 -1px 0 #bbb;color:#555;display:inline-block;font-size:11px;line-height:10px;padding:3px 5px;vertical-align:middle}.markdown-body .loweralpha{list-style-type:lower-alpha}.markdown-body h1,.markdown-body h2,.markdown-body h3,.markdown-body h4,.markdown-body h5,.markdown-body h6{font-weight:600;line-height:1.25;margin-bottom:16px;margin-top:24px}.markdown-body h1 .octicon-link,.markdown-body h2 .octicon-link,.markdown-body h3 .octicon-link,.markdown-body h4 .octicon-link,.markdown-body h5 .octicon-link,.markdown-body h6 .octicon-link{color:#000;vertical-align:middle;visibility:hidden}.markdown-body h1:hover .anchor,.markdown-body h2:hover .anchor,.markdown-body h3:hover .anchor,.markdown-body h4:hover .anchor,.markdown-body h5:hover .anchor,.markdown-body h6:hover .anchor{text-decoration:none}.markdown-body h1:hover .anchor .octicon-link,.markdown-body h2:hover .anchor .octicon-link,.markdown-body h3:hover .anchor .octicon-link,.markdown-body h4:hover .anchor .octicon-link,.markdown-body h5:hover .anchor .octicon-link,.markdown-body h6:hover .anchor .octicon-link{visibility:visible}.markdown-body h1 code,.markdown-body h1 tt,.markdown-body h2 code,.markdown-body h2 tt,.markdown-body h3 code,.markdown-body h3 tt,.markdown-body h4 code,.markdown-body h4 tt,.markdown-body h5 code,.markdown-body h5 tt,.markdown-body h6 code,.markdown-body h6 tt{font-size:inherit}.markdown-body h1{font-size:2em}.markdown-body h1,.markdown-body h2{border-bottom:1px solid #eee;padding-bottom:.3em}.markdown-body h2{font-size:1.5em}.markdown-body h3{font-size:1.25em}.markdown-body h4{font-size:1em}.markdown-body h5{font-size:.875em}.markdown-body h6{color:#777;font-size:.85em}.markdown-body ol,.markdown-body ul{padding-left:2em}.markdown-body ol.no-list,.markdown-body ul.no-list{list-style-type:none;padding:0}.markdown-body ol ol,.markdown-body ol ul,.markdown-body ul ol,.markdown-body ul ul{margin-bottom:0;margin-top:0}.markdown-body li>p{margin-top:16px}.markdown-body li+li{padding-top:.25em}.markdown-body dl{padding:0}.markdown-body dl dt{font-size:1em;font-style:italic;font-weight:700;margin-top:16px;padding:0}.markdown-body dl dd{margin-bottom:16px;padding:0 16px}.markdown-body table{display:block;overflow:auto;width:100%;word-break:normal;word-break:keep-all}.markdown-body table th{font-weight:700}.markdown-body table td,.markdown-body table th{border:1px solid #ddd;padding:6px 13px}.markdown-body table tr{background-color:#fff;border-top:1px solid #ccc}.markdown-body table tr:nth-child(2n){background-color:#f8f8f8}.markdown-body img{background-color:#fff;box-sizing:initial;max-width:100%}.markdown-body img[align=right]{padding-left:20px}.markdown-body img[align=left]{padding-right:20px}.markdown-body .emoji{background-color:initial;max-width:none;vertical-align:text-top}.markdown-body span.frame{display:block;overflow:hidden}.markdown-body span.frame>span{border:1px solid #ddd;display:block;float:left;margin:13px 0 0;overflow:hidden;padding:7px;width:auto}.markdown-body span.frame span img{display:block;float:left}.markdown-body span.frame span span{clear:both;color:#333;display:block;padding:5px 0 0}.markdown-body span.align-center{clear:both;display:block;overflow:hidden}.markdown-body span.align-center>span{display:block;margin:13px auto 0;overflow:hidden;text-align:center}.markdown-body span.align-center span img{margin:0 auto;text-align:center}.markdown-body span.align-right{clear:both;display:block;overflow:hidden}.markdown-body span.align-right>span{display:block;margin:13px 0 0;overflow:hidden;text-align:right}.markdown-body span.align-right span img{margin:0;text-align:right}.markdown-body span.float-left{display:block;float:left;margin-right:13px;overflow:hidden}.markdown-body span.float-left span{margin:13px 0 0}.markdown-body span.float-right{display:block;float:right;margin-left:13px;overflow:hidden}.markdown-body span.float-right>span{display:block;margin:13px auto 0;overflow:hidden;text-align:right}.markdown-body code,.markdown-body tt{background-color:#0000000a;border-radius:3px;font-size:85%;margin:0;padding:.2em 0}.markdown-body code:after,.markdown-body code:before,.markdown-body tt:after,.markdown-body tt:before{content:"\00a0";letter-spacing:-.2em}.markdown-body code br,.markdown-body tt br{display:none}.markdown-body del code{text-decoration:inherit}.markdown-body pre{word-wrap:normal}.markdown-body pre>code{background:#0000;border:0;font-size:100%;margin:0;padding:0;white-space:pre;word-break:normal}.markdown-body .highlight{margin-bottom:16px}.markdown-body .highlight pre{margin-bottom:0;word-break:normal}.markdown-body .highlight pre,.markdown-body pre{border-radius:3px;font-size:85%;line-height:1.45;overflow:auto}.markdown-body:not(.next-editor) pre{background-color:#f7f7f7;padding:16px}.markdown-body pre code,.markdown-body pre tt{word-wrap:normal;background-color:initial;border:0;display:inline;line-height:inherit;margin:0;max-width:auto;overflow:visible;padding:0}.markdown-body pre code:after,.markdown-body pre code:before,.markdown-body pre tt:after,.markdown-body pre tt:before{content:normal}.markdown-body .csv-data td,.markdown-body .csv-data th{font-size:12px;line-height:1;overflow:hidden;padding:5px;text-align:left;white-space:nowrap}.markdown-body .csv-data .blob-line-num{background:#fff;border:0;padding:10px 8px 9px;text-align:right}.markdown-body .csv-data tr{border-top:0}.markdown-body .csv-data th{background:#f8f8f8;border-top:0;font-weight:700}.news .alert .markdown-body blockquote{border:0;padding:0 0 0 40px}.activity-tab .news .alert .commits,.activity-tab .news .markdown-body blockquote{padding-left:0}.task-list-item{list-style-type:none}.task-list-item label{font-weight:400}.task-list-item.enabled label{cursor:pointer}.task-list-item+.task-list-item{margin-top:3px}.task-list-item-checkbox{cursor:default!important;float:left;margin:.31em 0 .2em -1.3em!important;vertical-align:middle}.markdown-body{max-width:758px;overflow:visible!important;padding-bottom:40px;padding-top:40px;position:relative}.markdown-body.next-editor{overflow-x:hidden!important}.markdown-body .emoji{vertical-align:top}.markdown-body pre{border:inherit!important}.markdown-body code{color:inherit!important}.markdown-body pre code .wrapper{display:-moz-inline-flex;display:-ms-inline-flex;display:-o-inline-flex;display:inline-flex}.markdown-body pre code .gutter{float:left;overflow:hidden;-webkit-user-select:none;user-select:none}.markdown-body pre code .gutter.linenumber{border-right:3px solid #6ce26c!important;box-sizing:initial;color:#afafaf!important;cursor:default;display:inline-block;min-width:20px;padding:0 8px 0 0;position:relative;text-align:right;z-index:4}.markdown-body pre code .gutter.linenumber>span:before{content:attr(data-linenumber)}.markdown-body pre code .code{float:left;margin:0 0 0 16px}.markdown-body .gist .line-numbers{border-bottom:none;border-left:none;border-top:none}.markdown-body .gist .line-data{border:none}.markdown-body .gist table{border-collapse:inherit!important;border-spacing:0}.markdown-body code[data-gist-id]{background:none;padding:0}.markdown-body code[data-gist-id]:after,.markdown-body code[data-gist-id]:before{content:""}.markdown-body code[data-gist-id] .blob-num{border:unset}.markdown-body code[data-gist-id] table{margin-bottom:unset;overflow:unset}.markdown-body code[data-gist-id] table tr{background:unset}.markdown-body[dir=rtl] pre{direction:ltr}.markdown-body[dir=rtl] code{direction:ltr;unicode-bidi:embed}.markdown-body .alert{display:flex;flex-direction:column;gap:16px}.markdown-body .alert>*{margin:0}.markdown-body pre.abc,.markdown-body pre.flow-chart,.markdown-body pre.graphviz,.markdown-body pre.mermaid,.markdown-body pre.sequence-diagram,.markdown-body pre.vega{background-color:inherit;border-radius:0;overflow:visible;text-align:center;white-space:inherit}.markdown-body pre.abc>code,.markdown-body pre.flow-chart>code,.markdown-body pre.graphviz>code,.markdown-body pre.mermaid>code,.markdown-body pre.sequence-diagram>code,.markdown-body pre.vega>code{text-align:left}.markdown-body pre.abc>svg,.markdown-body pre.flow-chart>svg,.markdown-body pre.graphviz>svg,.markdown-body pre.mermaid>svg,.markdown-body pre.sequence-diagram>svg,.markdown-body pre.vega>svg{height:100%;max-width:100%}.markdown-body pre>code.wrap{word-wrap:break-word;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space:-o-pre-wrap}.markdown-body summary{display:list-item}.markdown-body summary:focus{outline:none}.markdown-body details summary{cursor:pointer}.markdown-body details:not([open])>:not(summary){display:none}.markdown-body figure{margin:1em 40px}.markdown-body .mark,.markdown-body mark{background-color:#fff1a7}.vimeo,.youtube{background-color:#000;background-position:50%;background-repeat:no-repeat;background-size:contain;cursor:pointer;display:table;overflow:hidden;text-align:center}.vimeo,.youtube{position:relative;width:100%}.youtube{padding-bottom:56.25%}.vimeo img{object-fit:contain;width:100%;z-index:0}.youtube img{object-fit:cover;z-index:0}.vimeo iframe,.youtube iframe,.youtube img{height:100%;left:0;position:absolute;top:0;width:100%}.vimeo iframe,.youtube iframe{vertical-align:middle;z-index:1}.vimeo .icon,.youtube .icon{color:#fff;height:auto;left:50%;opacity:.3;position:absolute;top:50%;transform:translate(-50%,-50%);transition:opacity .2s;width:auto;z-index:0}.vimeo:hover .icon,.youtube:hover .icon{opacity:.6;transition:opacity .2s}.slideshare .inner,.speakerdeck .inner{position:relative;width:100%}.slideshare .inner iframe,.speakerdeck .inner iframe{bottom:0;height:100%;left:0;position:absolute;right:0;top:0;width:100%}.figma{display:table;padding-bottom:56.25%;position:relative;width:100%}.figma iframe{border:1px solid #eee;bottom:0;height:100%;left:0;position:absolute;right:0;top:0;width:100%}.markmap-container{height:300px}.markmap-container>svg{height:100%;width:100%}.MJX_Assistive_MathML{display:none}#MathJax_Message{z-index:1000!important}.ui-infobar{color:#777;margin:25px auto -25px;max-width:760px;position:relative;z-index:2}.toc .invisable-node{list-style-type:none}.ui-toc{bottom:20px;position:fixed;z-index:998}.ui-toc.both-mode{margin-left:8px}.ui-toc.both-mode .ui-toc-label{border-bottom-left-radius:0;border-top-left-radius:0;height:40px;padding:10px 4px}.ui-toc-label{background-color:#e6e6e6;border:none;color:#868686;transition:opacity .2s}.ui-toc .open .ui-toc-label{color:#fff;opacity:1;transition:opacity .2s}.ui-toc-label:focus{background-color:#ccc;color:#000;opacity:.3}.ui-toc-label:hover{background-color:#ccc;opacity:1;transition:opacity .2s}.ui-toc-dropdown{margin-bottom:20px;margin-top:20px;max-height:70vh;max-width:45vw;overflow:auto;padding-left:10px;padding-right:10px;text-align:inherit;width:25vw}.ui-toc-dropdown>.toc{max-height:calc(70vh - 100px);overflow:auto}.ui-toc-dropdown[dir=rtl] .nav{letter-spacing:.0029em;padding-right:0}.ui-toc-dropdown a{overflow:hidden;text-overflow:ellipsis;white-space:pre}.ui-toc-dropdown .nav>li>a{color:#767676;display:block;font-size:13px;font-weight:500;padding:4px 20px}.ui-toc-dropdown .nav>li:first-child:last-child>ul,.ui-toc-dropdown .toc.expand ul{display:block}.ui-toc-dropdown .nav>li>a:focus,.ui-toc-dropdown .nav>li>a:hover{background-color:initial;border-left:1px solid #000;color:#000;padding-left:19px;text-decoration:none}.ui-toc-dropdown[dir=rtl] .nav>li>a:focus,.ui-toc-dropdown[dir=rtl] .nav>li>a:hover{border-left:none;border-right:1px solid #000;padding-right:19px}.ui-toc-dropdown .nav>.active:focus>a,.ui-toc-dropdown .nav>.active:hover>a,.ui-toc-dropdown .nav>.active>a{background-color:initial;border-left:2px solid #000;color:#000;font-weight:700;padding-left:18px}.ui-toc-dropdown[dir=rtl] .nav>.active:focus>a,.ui-toc-dropdown[dir=rtl] .nav>.active:hover>a,.ui-toc-dropdown[dir=rtl] .nav>.active>a{border-left:none;border-right:2px solid #000;padding-right:18px}.ui-toc-dropdown .nav .nav{display:none;padding-bottom:10px}.ui-toc-dropdown .nav>.active>ul{display:block}.ui-toc-dropdown .nav .nav>li>a{font-size:12px;font-weight:400;padding-bottom:1px;padding-left:30px;padding-top:1px}.ui-toc-dropdown[dir=rtl] .nav .nav>li>a{padding-right:30px}.ui-toc-dropdown .nav .nav>li>ul>li>a{font-size:12px;font-weight:400;padding-bottom:1px;padding-left:40px;padding-top:1px}.ui-toc-dropdown[dir=rtl] .nav .nav>li>ul>li>a{padding-right:40px}.ui-toc-dropdown .nav .nav>li>a:focus,.ui-toc-dropdown .nav .nav>li>a:hover{padding-left:29px}.ui-toc-dropdown[dir=rtl] .nav .nav>li>a:focus,.ui-toc-dropdown[dir=rtl] .nav .nav>li>a:hover{padding-right:29px}.ui-toc-dropdown .nav .nav>li>ul>li>a:focus,.ui-toc-dropdown .nav .nav>li>ul>li>a:hover{padding-left:39px}.ui-toc-dropdown[dir=rtl] .nav .nav>li>ul>li>a:focus,.ui-toc-dropdown[dir=rtl] .nav .nav>li>ul>li>a:hover{padding-right:39px}.ui-toc-dropdown .nav .nav>.active:focus>a,.ui-toc-dropdown .nav .nav>.active:hover>a,.ui-toc-dropdown .nav .nav>.active>a{font-weight:500;padding-left:28px}.ui-toc-dropdown[dir=rtl] .nav .nav>.active:focus>a,.ui-toc-dropdown[dir=rtl] .nav .nav>.active:hover>a,.ui-toc-dropdown[dir=rtl] .nav .nav>.active>a{padding-right:28px}.ui-toc-dropdown .nav .nav>.active>.nav>.active:focus>a,.ui-toc-dropdown .nav .nav>.active>.nav>.active:hover>a,.ui-toc-dropdown .nav .nav>.active>.nav>.active>a{font-weight:500;padding-left:38px}.ui-toc-dropdown[dir=rtl] .nav .nav>.active>.nav>.active:focus>a,.ui-toc-dropdown[dir=rtl] .nav .nav>.active>.nav>.active:hover>a,.ui-toc-dropdown[dir=rtl] .nav .nav>.active>.nav>.active>a{padding-right:38px}.markdown-body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Helvetica,Roboto,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol}html[lang^=ja] .markdown-body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Helvetica,Roboto,Arial,Hiragino Kaku Gothic Pro,ヒラギノ角ゴ Pro W3,Osaka,Meiryo,メイリオ,MS Gothic,ＭＳ ゴシック,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol}html[lang=zh-tw] .markdown-body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Helvetica,Roboto,Arial,PingFang TC,Microsoft JhengHei,微軟正黑,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol}html[lang=zh-cn] .markdown-body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Helvetica,Roboto,Arial,PingFang SC,Microsoft YaHei,微软雅黑,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol}html .markdown-body[lang^=ja]{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Helvetica,Roboto,Arial,Hiragino Kaku Gothic Pro,ヒラギノ角ゴ Pro W3,Osaka,Meiryo,メイリオ,MS Gothic,ＭＳ ゴシック,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol}html .markdown-body[lang=zh-tw]{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Helvetica,Roboto,Arial,PingFang TC,Microsoft JhengHei,微軟正黑,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol}html .markdown-body[lang=zh-cn]{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Helvetica,Roboto,Arial,PingFang SC,Microsoft YaHei,微软雅黑,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol}html[lang^=ja] .ui-toc-dropdown{font-family:Source Sans Pro,Helvetica,Arial,Meiryo UI,MS PGothic,ＭＳ Ｐゴシック,sans-serif}html[lang=zh-tw] .ui-toc-dropdown{font-family:Source Sans Pro,Helvetica,Arial,Microsoft JhengHei UI,微軟正黑UI,sans-serif}html[lang=zh-cn] .ui-toc-dropdown{font-family:Source Sans Pro,Helvetica,Arial,Microsoft YaHei UI,微软雅黑UI,sans-serif}html .ui-toc-dropdown[lang^=ja]{font-family:Source Sans Pro,Helvetica,Arial,Meiryo UI,MS PGothic,ＭＳ Ｐゴシック,sans-serif}html .ui-toc-dropdown[lang=zh-tw]{font-family:Source Sans Pro,Helvetica,Arial,Microsoft JhengHei UI,微軟正黑UI,sans-serif}html .ui-toc-dropdown[lang=zh-cn]{font-family:Source Sans Pro,Helvetica,Arial,Microsoft YaHei UI,微软雅黑UI,sans-serif}.ui-affix-toc{max-height:70vh;max-width:15vw;overflow:auto;position:fixed;top:0}.back-to-top,.expand-toggle,.go-to-bottom{color:#999;display:block;font-size:12px;font-weight:500;margin-left:10px;margin-top:10px;padding:4px 10px}.back-to-top:focus,.back-to-top:hover,.expand-toggle:focus,.expand-toggle:hover,.go-to-bottom:focus,.go-to-bottom:hover{color:#563d7c;text-decoration:none}.back-to-top,.go-to-bottom{margin-top:0}.ui-user-icon{background-position:50%;background-repeat:no-repeat;background-size:cover;border-radius:50%;display:block;height:20px;margin-bottom:2px;margin-right:5px;margin-top:2px;width:20px}.ui-user-icon.small{display:inline-block;height:18px;margin:0 0 .2em;vertical-align:middle;width:18px}.ui-infobar>small>span{line-height:22px}.ui-infobar>small .dropdown{display:inline-block}.ui-infobar>small .dropdown a:focus,.ui-infobar>small .dropdown a:hover{text-decoration:none}.ui-more-info{color:#888;cursor:pointer;vertical-align:middle}.ui-more-info .fa{font-size:16px}.ui-connectedGithub,.ui-published-note{color:#888}.ui-connectedGithub{line-height:23px;white-space:nowrap}.ui-connectedGithub a.file-path{color:#888;padding-left:22px;text-decoration:none}.ui-connectedGithub a.file-path:active,.ui-connectedGithub a.file-path:hover{color:#888;text-decoration:underline}.ui-connectedGithub .fa{font-size:20px}.ui-published-note .fa{font-size:20px;vertical-align:top}.unselectable{-webkit-user-select:none;-o-user-select:none;user-select:none}.selectable{-webkit-user-select:text;-o-user-select:text;user-select:text}.inline-spoiler-section{cursor:pointer}.inline-spoiler-section .spoiler-text{background-color:#333;border-radius:2px}.inline-spoiler-section .spoiler-text>*{opacity:0}.inline-spoiler-section .spoiler-img{filter:blur(10px)}.inline-spoiler-section.raw{background-color:#333;border-radius:2px}.inline-spoiler-section.raw>*{opacity:0}.inline-spoiler-section.unveil{cursor:auto}.inline-spoiler-section.unveil .spoiler-text{background-color:#3333331a}.inline-spoiler-section.unveil .spoiler-text>*{opacity:1}.inline-spoiler-section.unveil .spoiler-img{filter:none}@media print{blockquote,div,img,pre,table{page-break-inside:avoid!important}a[href]:after{font-size:12px!important}}.markdown-body.slides{color:#222;position:relative;z-index:1}.markdown-body.slides:before{background-color:currentColor;bottom:0;box-shadow:0 0 0 50vw;content:"";display:block;left:0;position:absolute;right:0;top:0;z-index:-1}.markdown-body.slides section[data-markdown]{background-color:#fff;margin-bottom:1.5em;position:relative;text-align:center}.markdown-body.slides section[data-markdown] code{text-align:left}.markdown-body.slides section[data-markdown]:before{content:"";display:block;padding-bottom:56.23%}.markdown-body.slides section[data-markdown]>div:first-child{left:1em;max-height:100%;overflow:hidden;position:absolute;right:1em;top:50%;transform:translateY(-50%)}.markdown-body.slides section[data-markdown]>ul{display:inline-block}.markdown-body.slides>section>section+section:after{border:3px solid #777;content:"";height:1.5em;position:absolute;right:1em;top:-1.5em}.site-ui-font{font-family:Source Sans Pro,Helvetica,Arial,sans-serif}html[lang^=ja] .site-ui-font{font-family:Source Sans Pro,Helvetica,Arial,Hiragino Kaku Gothic Pro,ヒラギノ角ゴ Pro W3,Osaka,Meiryo,メイリオ,MS Gothic,ＭＳ ゴシック,sans-serif}html[lang=zh-tw] .site-ui-font{font-family:Source Sans Pro,Helvetica,Arial,PingFang TC,Microsoft JhengHei,微軟正黑,sans-serif}html[lang=zh-cn] .site-ui-font{font-family:Source Sans Pro,Helvetica,Arial,PingFang SC,Microsoft YaHei,微软雅黑,sans-serif}body{font-smoothing:subpixel-antialiased!important;-webkit-font-smoothing:subpixel-antialiased!important;-moz-osx-font-smoothing:auto!important;-webkit-overflow-scrolling:touch;font-family:Source Sans Pro,Helvetica,Arial,sans-serif;letter-spacing:.025em}html[lang^=ja] body{font-family:Source Sans Pro,Helvetica,Arial,Hiragino Kaku Gothic Pro,ヒラギノ角ゴ Pro W3,Osaka,Meiryo,メイリオ,MS Gothic,ＭＳ ゴシック,sans-serif}html[lang=zh-tw] body{font-family:Source Sans Pro,Helvetica,Arial,PingFang TC,Microsoft JhengHei,微軟正黑,sans-serif}html[lang=zh-cn] body{font-family:Source Sans Pro,Helvetica,Arial,PingFang SC,Microsoft YaHei,微软雅黑,sans-serif}abbr[title]{border-bottom:none;text-decoration:underline;-webkit-text-decoration:underline dotted;text-decoration:underline dotted}abbr[data-original-title],abbr[title]{cursor:help}body.modal-open{overflow-y:auto;padding-right:0!important}svg{text-shadow:none}
+    </style>
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    	<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js" integrity="sha256-3Jy/GbSLrg0o9y5Z5n1uw0qxZECH7C6OQpVBgNFYa0g=" crossorigin="anonymous"></script>
+    	<script src="https://cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js" integrity="sha256-g6iAfvZp+nDQ2TdTR/VVKJf3bGro4ub5fvWSWVRi2NE=" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.9/es5-shim.min.js" integrity="sha256-8E4Is26QH0bD52WoQpcB+R/tcWQtpzlCojrybUd7Mxo=" crossorigin="anonymous"></script>
+    <![endif]-->
+</head>
+
+<body>
+    <div id="doc" class="markdown-body container-fluid comment-enabled" data-hard-breaks="true"><h1 id="SonarQube-使用-Docker-架設-SonarQube-與-CNES-Report-Plugin-匯出-PDF-報告，結合Intellij-IDEA-Plugin-SonarAnalyzer-同時進行源碼掃描與遠端同步產製報告" data-id="SonarQube-使用-Docker-架設-SonarQube-與-CNES-Report-Plugin-匯出-PDF-報告，結合Intellij-IDEA-Plugin-SonarAnalyzer-同時進行源碼掃描與遠端同步產製報告"><a class="anchor hidden-xs" href="#SonarQube-使用-Docker-架設-SonarQube-與-CNES-Report-Plugin-匯出-PDF-報告，結合Intellij-IDEA-Plugin-SonarAnalyzer-同時進行源碼掃描與遠端同步產製報告" title="SonarQube-使用-Docker-架設-SonarQube-與-CNES-Report-Plugin-匯出-PDF-報告，結合Intellij-IDEA-Plugin-SonarAnalyzer-同時進行源碼掃描與遠端同步產製報告"><span class="octicon octicon-link"></span></a><span>[SonarQube] 使用 Docker 架設 SonarQube 與 CNES Report Plugin 匯出 PDF 報告，結合Intellij IDEA Plugin: SonarAnalyzer 同時進行源碼掃描與遠端同步產製報告</span></h1><p><span class="toc"><ul>
+<li><a href="#SonarQube-使用-Docker-架設-SonarQube-與-CNES-Report-Plugin-匯出-PDF-報告，結合Intellij-IDEA-Plugin-SonarAnalyzer-同時進行源碼掃描與遠端同步產製報告" title="[SonarQube] 使用 Docker 架設 SonarQube 與 CNES Report Plugin 匯出 PDF 報告，結合Intellij IDEA Plugin: SonarAnalyzer 同時進行源碼掃描與遠端同步產製報告">[SonarQube] 使用 Docker 架設 SonarQube 與 CNES Report Plugin 匯出 PDF 報告，結合Intellij IDEA Plugin: SonarAnalyzer 同時進行源碼掃描與遠端同步產製報告</a><ul>
+<li><a href="#前言：" title="前言：">前言：</a></li>
+<li><a href="#使用-Docker-架設-SonarQube" title="使用 Docker 架設 SonarQube">使用 Docker 架設 SonarQube</a><ul>
+<li><a href="#Step-1-下載-Docker-Image" title="Step 1. 下載 Docker Image">Step 1. 下載 Docker Image</a></li>
+<li><a href="#Step-2-打開-SonarQube" title="Step 2. 打開 SonarQube">Step 2. 打開 SonarQube</a></li>
+<li><a href="#Step-3-使用-SonarQube-手動建立項目" title="Step 3. 使用 SonarQube 手動建立項目">Step 3. 使用 SonarQube 手動建立項目</a></li>
+<li><a href="#Step-4--用-Terminal-指定到自己的專案目錄，貼上指令" title="Step 4 . 用 Terminal 指定到自己的專案目錄，貼上指令">Step 4 . 用 Terminal 指定到自己的專案目錄，貼上指令</a></li>
+<li><a href="#Step-5-回到原本的-SonarQube-網頁" title="Step 5. 回到原本的 SonarQube 網頁">Step 5. 回到原本的 SonarQube 網頁</a></li>
+</ul>
+</li>
+<li><a href="#掛載-CNES-Report-Plugin-到-docker-container-匯出-PDF-報告" title="掛載 CNES Report Plugin 到 docker container 匯出 PDF 報告">掛載 CNES Report Plugin 到 docker container 匯出 PDF 報告</a><ul>
+<li><a href="#SonarQube-CNES-Report" title="SonarQube CNES Report">SonarQube CNES Report</a></li>
+<li><a href="#Step-1-進入-Release-頁面-選擇對應的-Release-jar" title="Step 1. 進入 Release 頁面 選擇對應的 Release jar">Step 1. 進入 Release 頁面 選擇對應的 Release jar</a></li>
+<li><a href="#Step-2-解壓縮-Jar-檔，放在桌面" title="Step 2. 解壓縮 Jar 檔，放在桌面">Step 2. 解壓縮 Jar 檔，放在桌面</a></li>
+<li><a href="#Step-3-進到Docker-containter-內部" title="Step 3. 進到Docker containter 內部">Step 3. 進到Docker containter 內部</a></li>
+<li><a href="#Step-4--回到-SonarQube-主頁" title="Step 4 . 回到 SonarQube 主頁">Step 4 . 回到 SonarQube 主頁</a></li>
+</ul>
+</li>
+<li><a href="#Intellij-IDEA-Plugin-SonarAnalyzer-同時進行源碼掃描與遠端同步產製報告" title="Intellij IDEA Plugin: SonarAnalyzer 同時進行源碼掃描與遠端同步產製報告">Intellij IDEA Plugin: SonarAnalyzer 同時進行源碼掃描與遠端同步產製報告</a></li>
+<li><a href="#reference" title="reference:">reference:</a></li>
+</ul>
+</li>
+</ul>
+</span></p><h2 id="前言：" data-id="前言："><a class="anchor hidden-xs" href="#前言：" title="前言："><span class="octicon octicon-link"></span></a><span>前言：</span></h2><p><span>本篇筆記著重在 SonarQube，紀錄初學 SonarQube 的應用，分享如何使用 SonarQube CNES Report Plugin 匯出源碼掃描之報告，並結合 Intellij IDEA SonarAnalyzer plugins 在 IDEA 內部本地使用 SonarQube  同時進行源碼掃描與遠端同步產製報告</span></p><h2 id="使用-Docker-架設-SonarQube" data-id="使用-Docker-架設-SonarQube"><a class="anchor hidden-xs" href="#使用-Docker-架設-SonarQube" title="使用-Docker-架設-SonarQube"><span class="octicon octicon-link"></span></a><span>使用 Docker 架設 SonarQube</span></h2><h3 id="Step-1-下載-Docker-Image" data-id="Step-1-下載-Docker-Image"><a class="anchor hidden-xs" href="#Step-1-下載-Docker-Image" title="Step-1-下載-Docker-Image"><span class="octicon octicon-link"></span></a><span>Step 1. 下載 Docker Image</span></h3><h4 id="優先建立要使用的開源程式碼檢測平台：SonarQube" data-id="優先建立要使用的開源程式碼檢測平台：SonarQube"><a class="anchor hidden-xs" href="#優先建立要使用的開源程式碼檢測平台：SonarQube" title="優先建立要使用的開源程式碼檢測平台：SonarQube"><span class="octicon octicon-link"></span></a><span>優先建立要使用的開源程式碼檢測平台：SonarQube</span></h4><ul>
+<li><span>執行以下指令，讓 Docker 建立並運行 SonarQube 的 container</span></li>
+</ul><pre><code class="dockerfile hljs"><div class="wrapper"><div class="gutter linenumber"><span></span></div><div class="code">docker <span class="hljs-keyword">run</span><span class="language-bash"> -d --name sonarqube -p 9000:9000 -p 9092:9092 sonarqube:lts</span>
+</div></div></code></pre><ul>
+<li><span>-d：detach，建立 container 後，後台運行容器</span></li>
+<li><span>–name：命名 container</span></li>
+<li><span>-p：Docker 外部與 SonarQube內部對應的 port，其中左邊為外部 * Docker 的 port，右邊為 SonarQube 內部的 port</span></li>
+<li><span>sonarqube:lts：SonarQube 的 LTS 版本</span></li>
+</ul><h4 id="執行結果：" data-id="執行結果："><a class="anchor hidden-xs" href="#執行結果：" title="執行結果："><span class="octicon octicon-link"></span></a><span>執行結果：</span></h4><p><img src="https://hackmd.io/_uploads/ry4UmlI-0.png" alt="截圖 2024-04-24 上午10.49.42" loading="lazy"></p><h3 id="Step-2-打開-SonarQube" data-id="Step-2-打開-SonarQube"><a class="anchor hidden-xs" href="#Step-2-打開-SonarQube" title="Step-2-打開-SonarQube"><span class="octicon octicon-link"></span></a><span>Step 2. 打開 SonarQube</span></h3><h4 id="預設網址為：httplocalhost9000" data-id="預設網址為：httplocalhost9000"><a class="anchor hidden-xs" href="#預設網址為：httplocalhost9000" title="預設網址為：httplocalhost9000"><span class="octicon octicon-link"></span></a><span>預設網址為：</span><a href="http://localhost:9000/" target="_blank" rel="noopener"><span>http://localhost:9000/</span></a></h4><ul>
+<li><span>第一次登入時，會要求你輸入帳號密碼</span></li>
+<li><span>預設帳號：admin</span></li>
+<li><span>預設密碼：admin</span></li>
+</ul><p><img src="https://hackmd.io/_uploads/HJhaEgIWC.png" alt="截圖 2024-04-24 上午10.54.43" loading="lazy"></p><h4 id="然後會要求更改密碼，這時間輸入自己密碼喜好就好" data-id="然後會要求更改密碼，這時間輸入自己密碼喜好就好"><a class="anchor hidden-xs" href="#然後會要求更改密碼，這時間輸入自己密碼喜好就好" title="然後會要求更改密碼，這時間輸入自己密碼喜好就好"><span class="octicon octicon-link"></span></a><span>然後會要求更改密碼，這時間輸入自己密碼喜好就好</span></h4><h4 id="切記！一定要記住密碼" data-id="切記！一定要記住密碼"><a class="anchor hidden-xs" href="#切記！一定要記住密碼" title="切記！一定要記住密碼"><span class="octicon octicon-link"></span></a><span>切記！一定要記住密碼</span></h4><p><img src="https://hackmd.io/_uploads/rJpgHxLZC.png" alt="截圖 2024-04-24 上午10.56.48" loading="lazy"></p><h4 id="密碼更改完後，就會進入-SonarQube-的主頁面" data-id="密碼更改完後，就會進入-SonarQube-的主頁面"><a class="anchor hidden-xs" href="#密碼更改完後，就會進入-SonarQube-的主頁面" title="密碼更改完後，就會進入-SonarQube-的主頁面"><span class="octicon octicon-link"></span></a><span>密碼更改完後，就會進入 SonarQube 的主頁面</span></h4><p><img src="https://hackmd.io/_uploads/ByDIBeLWC.png" alt="截圖 2024-04-24 上午10.58.18" loading="lazy"></p><h3 id="Step-3-使用-SonarQube-手動建立項目" data-id="Step-3-使用-SonarQube-手動建立項目"><a class="anchor hidden-xs" href="#Step-3-使用-SonarQube-手動建立項目" title="Step-3-使用-SonarQube-手動建立項目"><span class="octicon octicon-link"></span></a><span>Step 3. 使用 SonarQube 手動建立項目</span></h3><ul>
+<li><span>本次只先教導大家，如何用在本地專案</span></li>
+<li><span>未來會新增如何串接 GitHub 和 GitLab</span></li>
+</ul><h4 id="點選-Manually" data-id="點選-Manually"><a class="anchor hidden-xs" href="#點選-Manually" title="點選-Manually"><span class="octicon octicon-link"></span></a><span>點選 Manually</span></h4><p><img src="https://hackmd.io/_uploads/BJ1SPlU-R.png" alt="截圖 2024-04-24 上午11.04.55" loading="lazy"></p><h4 id="進入到手動-Create-Project" data-id="進入到手動-Create-Project"><a class="anchor hidden-xs" href="#進入到手動-Create-Project" title="進入到手動-Create-Project"><span class="octicon octicon-link"></span></a><span>進入到手動 Create Project</span></h4><ul>
+<li><span>創建自己的專案名稱</span></li>
+<li><span>這裡我先用 testProject 命名</span></li>
+<li><span>branch 先選 main 即可</span></li>
+<li><span>都命名完後，可點擊 </span><strong><span>SetUp</span></strong><span> 創建專案</span></li>
+</ul><p><img src="https://hackmd.io/_uploads/ryruveUZR.png" alt="截圖 2024-04-24 上午11.07.18" loading="lazy"></p><h4 id="點選-Locally" data-id="點選-Locally"><a class="anchor hidden-xs" href="#點選-Locally" title="點選-Locally"><span class="octicon octicon-link"></span></a><span>點選 Locally</span></h4><ul>
+<li><span>指定為本地專案</span></li>
+</ul><p><img src="https://hackmd.io/_uploads/S1WOOlLbR.png" alt="截圖 2024-04-24 上午11.11.13" loading="lazy"></p><ul>
+<li><span>這時候會進到 Overview 裡面</span></li>
+<li><span>Generate a project token 出來</span></li>
+</ul><p><img src="https://hackmd.io/_uploads/Hk6sOxU-R.png" alt="截圖 2024-04-24 上午11.12.30" loading="lazy"></p><h4 id="點選-Continue" data-id="點選-Continue"><a class="anchor hidden-xs" href="#點選-Continue" title="點選-Continue"><span class="octicon octicon-link"></span></a><span>點選 Continue</span></h4><ul>
+<li><span>這個 token 要特別備份出來，待會串接 SonarAnalyzer 會用到</span></li>
+</ul><p><img src="https://hackmd.io/_uploads/rkuGtx8-A.png" alt="截圖 2024-04-24 上午11.14.17" loading="lazy"></p><h4 id="選擇你在用自動化建構工具" data-id="選擇你在用自動化建構工具"><a class="anchor hidden-xs" href="#選擇你在用自動化建構工具" title="選擇你在用自動化建構工具"><span class="octicon octicon-link"></span></a><span>選擇你在用自動化建構工具</span></h4><ul>
+<li><span>由於筆者習慣用 Maven，所以就選擇 Maven</span></li>
+<li><span>挑選工作需要用到的就好</span></li>
+</ul><p><img src="https://hackmd.io/_uploads/Sk-5YeLW0.png" alt="截圖 2024-04-24 上午11.16.20" loading="lazy"></p><h4 id="點選完後，就會出現-mvn-clean-的指令，把整個指令都複製下來" data-id="點選完後，就會出現-mvn-clean-的指令，把整個指令都複製下來"><a class="anchor hidden-xs" href="#點選完後，就會出現-mvn-clean-的指令，把整個指令都複製下來" title="點選完後，就會出現-mvn-clean-的指令，把整個指令都複製下來"><span class="octicon octicon-link"></span></a><span>點選完後，就會出現 mvn clean 的指令，把整個指令都複製下來</span></h4><p><img src="https://hackmd.io/_uploads/B1kH9eLZ0.png" alt="截圖 2024-04-24 上午11.19.12" loading="lazy"></p><h3 id="Step-4--用-Terminal-指定到自己的專案目錄，貼上指令" data-id="Step-4--用-Terminal-指定到自己的專案目錄，貼上指令"><a class="anchor hidden-xs" href="#Step-4--用-Terminal-指定到自己的專案目錄，貼上指令" title="Step-4--用-Terminal-指定到自己的專案目錄，貼上指令"><span class="octicon octicon-link"></span></a><span>Step 4 . 用 Terminal 指定到自己的專案目錄，貼上指令</span></h3><ul>
+<li><span>筆者這裡直接使用 Intellij IDEA 內建的 Terminal</span></li>
+</ul><ol>
+<li><img src="https://hackmd.io/_uploads/By72slUZA.png" alt="截圖 2024-04-24 上午11.25.23" loading="lazy"></li>
+<li><img src="https://hackmd.io/_uploads/ryK0ilIZR.png" alt="截圖 2024-04-24 上午11.26.04" loading="lazy"></li>
+</ol><h3 id="Step-5-回到原本的-SonarQube-網頁" data-id="Step-5-回到原本的-SonarQube-網頁"><a class="anchor hidden-xs" href="#Step-5-回到原本的-SonarQube-網頁" title="Step-5-回到原本的-SonarQube-網頁"><span class="octicon octicon-link"></span></a><span>Step 5. 回到原本的 SonarQube 網頁</span></h3><ul>
+<li><span>BUILD SUCCESS 回到原本的 SonarQube 網頁，就能看到掃描結果了</span></li>
+</ul><p><img src="https://hackmd.io/_uploads/BJx1ae8ZR.png" alt="截圖 2024-04-24 上午11.29.48" loading="lazy"></p><ul>
+<li><span>這時候原本設置的 testProject，會被變成源碼掃描的專案名稱</span></li>
+<li><span>他會根據 pom.xml 裡面的 tag，改變自己的名稱，以符合掃描的專案名稱</span></li>
+</ul><pre><code class="xml hljs"><div class="wrapper"><div class="gutter linenumber"><span></span></div><div class="code"><span class="hljs-tag">&lt;<span class="hljs-name">name</span>&gt;</span>accounts<span class="hljs-tag">&lt;/<span class="hljs-name">name</span>&gt;</span>
+</div></div></code></pre><ul>
+<li><img src="https://hackmd.io/_uploads/H1t6axLbA.png" alt="截圖 2024-04-24 上午11.34.20" loading="lazy"></li>
+</ul><h2 id="掛載-CNES-Report-Plugin-到-docker-container-匯出-PDF-報告" data-id="掛載-CNES-Report-Plugin-到-docker-container-匯出-PDF-報告"><a class="anchor hidden-xs" href="#掛載-CNES-Report-Plugin-到-docker-container-匯出-PDF-報告" title="掛載-CNES-Report-Plugin-到-docker-container-匯出-PDF-報告"><span class="octicon octicon-link"></span></a><span>掛載 CNES Report Plugin 到 docker container 匯出 PDF 報告</span></h2><p><span>目前使用的 SonarQube 是 Community Edition 9.9 LTS，但預設並不支援 PDF 報告的產製。若想要取得紙本報告，就需要透過外掛來實現。最初我找到了一篇由 </span><a href="https://ithelp.ithome.com.tw/articles/10313246" target="_blank" rel="noopener"><span>Ivan Chang 在 iThome 上分享的文章</span></a><span>，介紹了如何在 SonarQube 8.7 版本下產生 PDF 分析報告。但可惜的是，文章中提到的外掛已不再支援。因此，需要尋找其他可行的外掛或解決方案。</span></p><h3 id="SonarQube-CNES-Report" data-id="SonarQube-CNES-Report"><a class="anchor hidden-xs" href="#SonarQube-CNES-Report" title="SonarQube-CNES-Report"><span class="octicon octicon-link"></span></a><a href="https://github.com/cnescatlab/sonar-cnes-report" target="_blank" rel="noopener"><span>SonarQube CNES Report</span></a></h3><p><span>是由 </span><a href="https://cnescatlab.github.io/" target="_blank" rel="noopener"><span>CNES CAT LAB</span></a><span> 所維護的報告文件產製套件，算是目前有在定期更新的第三方套件。</span></p><p><img src="https://hackmd.io/_uploads/HJ5febUZR.png" alt="upload_b0f59fedfc0bddc59155873ab7bf43a4" loading="lazy"></p><ul>
+<li><span>雖然官網是寫不再支援 SonarQube CNES Report 這個插件，CAT Lab Github 上的 </span><a href="https://github.com/cnescatlab/sonar-cnes-report#compatibility-matrix" target="_blank" rel="noopener"><span>README</span></a><span> 已經有清楚寫明各 SonarQube 版本支援的情況，讀者可以直接根據自己使用的 SonarQube 版本，選擇對應的 Release jar。</span></li>
+<li><img src="https://hackmd.io/_uploads/H1-px-IbC.png" alt="截圖 2024-04-24 上午11.46.41" loading="lazy"></li>
+</ul><h3 id="Step-1-進入-Release-頁面-選擇對應的-Release-jar" data-id="Step-1-進入-Release-頁面-選擇對應的-Release-jar"><a class="anchor hidden-xs" href="#Step-1-進入-Release-頁面-選擇對應的-Release-jar" title="Step-1-進入-Release-頁面-選擇對應的-Release-jar"><span class="octicon octicon-link"></span></a><span>Step 1. 進入 </span><a href="https://github.com/cnescatlab/sonar-cnes-report/releases" target="_blank" rel="noopener"><span>Release 頁面</span></a><span> 選擇對應的 Release jar</span></h3><ul>
+<li><span>筆者這裡是使用 4.3.0.jar，我測試下來是可以使用的</span></li>
+<li><span>或是你可以選擇適用的 jar 檔</span></li>
+</ul><p><img src="https://hackmd.io/_uploads/HJch-Z8WA.png" alt="截圖 2024-04-24 上午11.50.32" loading="lazy"></p><h3 id="Step-2-解壓縮-Jar-檔，放在桌面" data-id="Step-2-解壓縮-Jar-檔，放在桌面"><a class="anchor hidden-xs" href="#Step-2-解壓縮-Jar-檔，放在桌面" title="Step-2-解壓縮-Jar-檔，放在桌面"><span class="octicon octicon-link"></span></a><span>Step 2. 解壓縮 Jar 檔，放在桌面</span></h3><p><img src="https://hackmd.io/_uploads/SJlFQWI-C.png" alt="截圖 2024-04-24 上午11.58.44" loading="lazy"></p><h3 id="Step-3-進到Docker-containter-內部" data-id="Step-3-進到Docker-containter-內部"><a class="anchor hidden-xs" href="#Step-3-進到Docker-containter-內部" title="Step-3-進到Docker-containter-內部"><span class="octicon octicon-link"></span></a><span>Step 3. 進到Docker containter 內部</span></h3><ul>
+<li>
+<p><span>將桌面的 sonar-cnes-report-4.3.0.jar 掛載或覆寫到 SonarQube container 的 /opt/sonarqube/extensions/plugins/ 路徑底下</span></p>
+</li>
+<li>
+<p><span>使用這個指令進到 sonarqube 這個 container 內部</span></p>
+</li>
+</ul><pre><code class="dockerfile hljs"><div class="wrapper"><div class="gutter linenumber"><span></span></div><div class="code">docker exec -it sonarqube /bin/bash
+</div></div></code></pre><p><img src="https://hackmd.io/_uploads/BJ0vrmU-A.png" alt="截圖 2024-04-24 下午2.23.26" loading="lazy"></p><ul>
+<li><span>在進到「cd extensions/plugins/」這個目錄裡面</span></li>
+<li><span>原本在 plugins 底下只有 README.txt</span><br>
+<img src="https://hackmd.io/_uploads/rJNzN7L-0.png" alt="截圖 2024-04-24 下午2.17.44" loading="lazy"></li>
+</ul><h4 id="用下面的指令，從桌面的-jar-檔，放入-sonarqube-container-內部" data-id="用下面的指令，從桌面的-jar-檔，放入-sonarqube-container-內部"><a class="anchor hidden-xs" href="#用下面的指令，從桌面的-jar-檔，放入-sonarqube-container-內部" title="用下面的指令，從桌面的-jar-檔，放入-sonarqube-container-內部"><span class="octicon octicon-link"></span></a><span>用下面的指令，從桌面的 jar 檔，放入 sonarqube container 內部</span></h4><ul>
+<li><span>若前面已經跑起一個 SonarQube Container，可以選擇把它刪掉或更改新的 container name</span></li>
+<li><span class="smartypants">–</span><span>name sonarqube -&gt; </span><span class="smartypants">–</span><span>name sonarqubeplus</span></li>
+<li><span>筆者這裡選擇刪除，再重跑一個新的 containter</span></li>
+</ul><pre><code class="dockerfile hljs"><div class="wrapper"><div class="gutter linenumber"><span></span>
+<span></span>
+<span></span></div><div class="code">docker <span class="hljs-keyword">run</span><span class="language-bash"> -d -v /&lt;你的檔案目錄路徑&gt;/sonar-cnes-report-4.3.0.jar:/opt/sonarqube/extensions/plugins/sonar-cnes-report-4.3.0.jar --name sonarqube -p 9000:9000 -p 9092:9092 sonarqube:lts</span>
+//範例：
+docker <span class="hljs-keyword">run</span><span class="language-bash"> -d -v /dont/tell/you/sonar-cnes-report-4.3.0.jar:/opt/sonarqube/extensions/plugins/sonar-cnes-report-4.3.0.jar --name sonarqube -p 9000:9000 -p 9092:9092 sonarqube:lts</span>
+</div></div></code></pre><ul>
+<li><span>最後再進到 containter 內部，檔案已經被放進去囉！</span></li>
+</ul><p><img src="https://hackmd.io/_uploads/HkUMtmIWC.png" alt="截圖 2024-04-24 下午2.39.03" loading="lazy"></p><h3 id="Step-4--回到-SonarQube-主頁" data-id="Step-4--回到-SonarQube-主頁"><a class="anchor hidden-xs" href="#Step-4--回到-SonarQube-主頁" title="Step-4--回到-SonarQube-主頁"><span class="octicon octicon-link"></span></a><span>Step 4 . 回到 SonarQube 主頁</span></h3><ul>
+<li><span>點選 More 就會出現 CNES Report 的插件囉！</span></li>
+</ul><p><img src="https://hackmd.io/_uploads/SJkW678WA.png" alt="截圖 2024-04-24 下午2.55.45" loading="lazy"></p><ul>
+<li><span>點進去，就可以開始產生報告了</span></li>
+</ul><p><img src="https://hackmd.io/_uploads/BJD8pX8-C.png" alt="截圖 2024-04-24 下午2.57.15" loading="lazy"></p><h2 id="Intellij-IDEA-Plugin-SonarAnalyzer-同時進行源碼掃描與遠端同步產製報告" data-id="Intellij-IDEA-Plugin-SonarAnalyzer-同時進行源碼掃描與遠端同步產製報告"><a class="anchor hidden-xs" href="#Intellij-IDEA-Plugin-SonarAnalyzer-同時進行源碼掃描與遠端同步產製報告" title="Intellij-IDEA-Plugin-SonarAnalyzer-同時進行源碼掃描與遠端同步產製報告"><span class="octicon octicon-link"></span></a><span>Intellij IDEA Plugin: SonarAnalyzer 同時進行源碼掃描與遠端同步產製報告</span></h2><p><span>SonarAnalyzer 是一種靜態程式碼分析工具，它是 SonarSource 公司的產品之一。這個工具用於檢測程式碼中的缺陷、漏洞、代碼風格問題等。SonarAnalyzer 可以集成到不同的集成開發環境（IDE）中，如 Eclipse、IntelliJ IDEA 等，也可以與持續集成工具（如 Jenkins）和版本控制系統（如 Git）集成，以實現自動化的程式碼分析和檢查。它能夠提供即時反饋，幫助開發人員在開發過程中及時發現和修復程式碼中的問題，從而提高代碼的質量和可維護性。</span></p><ul>
+<li><span>可以使用 SonarAnalyzer 連上 SonarQube 用 IDEA 進行源碼掃描</span></li>
+</ul><p><img src="https://hackmd.io/_uploads/HJFEAQLbR.png" alt="截圖 2024-04-24 下午3.00.59" loading="lazy"></p><ul>
+<li><span>先安裝好套件，再進到 Tools 裡面，找到 SonarAnalyzer 進行連接</span></li>
+<li><strong><span>點選 Url 旁邊的 + 號</span></strong></li>
+</ul><p><img src="https://hackmd.io/_uploads/S1NRAQIZA.png" alt="截圖 2024-04-24 下午3.03.35" loading="lazy"></p><ul>
+<li><span>就會跳出視窗，要求你填寫連線資訊</span></li>
+</ul><p><img src="https://hackmd.io/_uploads/Hkei1VIWA.png" alt="截圖 2024-04-24 下午3.06.58" loading="lazy"></p><ul>
+<li><span>會要求你的 url 和 token，這時候再輸入</span>
+<ol>
+<li><span>未這個連線命名</span></li>
+<li><a href="http://localhost:9000/" target="_blank" rel="noopener"><span>http://localhost:9000/</span></a></li>
+<li><span>當時建立的 token 序號</span></li>
+</ol>
+</li>
+</ul><p><img src="https://hackmd.io/_uploads/r1Ahe4U-C.png" alt="截圖 2024-04-24 下午3.11.44" loading="lazy"></p><ul>
+<li>
+<p><span>再按 ok 和 Apply 就可以用這個套件掃描整個專案囉</span></p>
+</li>
+<li>
+<p><span>按綠色箭頭啟動掃描</span><br>
+<img src="https://hackmd.io/_uploads/HJSjZ4IWC.png" alt="截圖 2024-04-24 下午3.15.35" loading="lazy"></p>
+</li>
+<li>
+<p><span>掃描結果就會出來囉！</span><br>
+<img src="https://hackmd.io/_uploads/Hyv-zN8WR.png" alt="截圖 2024-04-24 下午3.17.14" loading="lazy"></p>
+</li>
+</ul><p><span>之後就可以再Intellij IDEA內部，編寫程式，邊進行源碼掃描。</span><br>
+<span>持續提升系統品質！！！</span></p><h2 id="reference" data-id="reference"><a class="anchor hidden-xs" href="#reference" title="reference"><span class="octicon octicon-link"></span></a><span>reference:</span></h2><ul>
+<li><a href="https://medium.com/starbugs/%E5%8E%9F%E4%BE%86%E7%A8%8B%E5%BC%8F%E7%A2%BC%E5%93%81%E8%B3%AA%E4%B9%9F%E5%8F%AF%E4%BB%A5%E8%A2%AB%E6%AA%A2%E6%B8%AC-%E5%88%9D%E6%8E%A2-sonarqube-14e99687806e" target="_blank" rel="noopener"><span>原來程式碼品質也可以被檢測：初探 SonarQube</span></a></li>
+<li><a href="https://old-oomusou.goodjack.tw/sonarqube/docker/" target="_blank" rel="noopener"><span>如何使用 Docker 安裝 SonarQube？</span></a></li>
+<li><a href="https://hackmd.io/@dh46tw/sonarqube-community-cnes-report-plugin" target="_blank" rel="noopener"><span>SonarQube Community Edition 使用 SonarQube CNES Report Plugin 匯出 PDF 報告</span></a></li>
+<li><a href="https://ithelp.ithome.com.tw/articles/10313246" target="_blank" rel="noopener"><span>SonarQube 如何產生 PDF 分析報告</span></a></li>
+<li><a href="https://github.com/cnescatlab/sonar-cnes-report" target="_blank" rel="noopener"><span>sonar-cnes-report</span></a></li>
+<li><a href="https://ithelp.ithome.com.tw/articles/10192397" target="_blank" rel="noopener"><span>Day17：使用 Docker Volume 的功能 (一)</span></a></li>
+</ul></div>
+    <div class="ui-toc dropup unselectable hidden-print" style="display:none;">
+        <div class="pull-right dropdown">
+            <a id="tocLabel" class="ui-toc-label btn btn-default" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false" title="Table of content">
+                <i class="fa fa-bars"></i>
+            </a>
+            <ul id="ui-toc" class="ui-toc-dropdown dropdown-menu" aria-labelledby="tocLabel">
+                <div class="toc"><ul class="nav">
+<li><a href="#SonarQube-使用-Docker-架設-SonarQube-與-CNES-Report-Plugin-匯出-PDF-報告，結合Intellij-IDEA-Plugin-SonarAnalyzer-同時進行源碼掃描與遠端同步產製報告" title="[SonarQube] 使用 Docker 架設 SonarQube 與 CNES Report Plugin 匯出 PDF 報告，結合Intellij IDEA Plugin: SonarAnalyzer 同時進行源碼掃描與遠端同步產製報告">[SonarQube] 使用 Docker 架設 SonarQube 與 CNES Report Plugin 匯出 PDF 報告，結合Intellij IDEA Plugin: SonarAnalyzer 同時進行源碼掃描與遠端同步產製報告</a><ul class="nav">
+<li><a href="#前言：" title="前言：">前言：</a></li>
+<li><a href="#使用-Docker-架設-SonarQube" title="使用 Docker 架設 SonarQube">使用 Docker 架設 SonarQube</a><ul class="nav">
+<li><a href="#Step-1-下載-Docker-Image" title="Step 1. 下載 Docker Image">Step 1. 下載 Docker Image</a></li>
+<li><a href="#Step-2-打開-SonarQube" title="Step 2. 打開 SonarQube">Step 2. 打開 SonarQube</a></li>
+<li><a href="#Step-3-使用-SonarQube-手動建立項目" title="Step 3. 使用 SonarQube 手動建立項目">Step 3. 使用 SonarQube 手動建立項目</a></li>
+<li><a href="#Step-4--用-Terminal-指定到自己的專案目錄，貼上指令" title="Step 4 . 用 Terminal 指定到自己的專案目錄，貼上指令">Step 4 . 用 Terminal 指定到自己的專案目錄，貼上指令</a></li>
+<li><a href="#Step-5-回到原本的-SonarQube-網頁" title="Step 5. 回到原本的 SonarQube 網頁">Step 5. 回到原本的 SonarQube 網頁</a></li>
+</ul>
+</li>
+<li><a href="#掛載-CNES-Report-Plugin-到-docker-container-匯出-PDF-報告" title="掛載 CNES Report Plugin 到 docker container 匯出 PDF 報告">掛載 CNES Report Plugin 到 docker container 匯出 PDF 報告</a><ul class="nav">
+<li><a href="#SonarQube-CNES-Report" title="SonarQube CNES Report">SonarQube CNES Report</a></li>
+<li><a href="#Step-1-進入-Release-頁面-選擇對應的-Release-jar" title="Step 1. 進入 Release 頁面 選擇對應的 Release jar">Step 1. 進入 Release 頁面 選擇對應的 Release jar</a></li>
+<li><a href="#Step-2-解壓縮-Jar-檔，放在桌面" title="Step 2. 解壓縮 Jar 檔，放在桌面">Step 2. 解壓縮 Jar 檔，放在桌面</a></li>
+<li><a href="#Step-3-進到Docker-containter-內部" title="Step 3. 進到Docker containter 內部">Step 3. 進到Docker containter 內部</a></li>
+<li><a href="#Step-4--回到-SonarQube-主頁" title="Step 4 . 回到 SonarQube 主頁">Step 4 . 回到 SonarQube 主頁</a></li>
+</ul>
+</li>
+<li><a href="#Intellij-IDEA-Plugin-SonarAnalyzer-同時進行源碼掃描與遠端同步產製報告" title="Intellij IDEA Plugin: SonarAnalyzer 同時進行源碼掃描與遠端同步產製報告">Intellij IDEA Plugin: SonarAnalyzer 同時進行源碼掃描與遠端同步產製報告</a></li>
+<li><a href="#reference" title="reference:">reference:</a></li>
+</ul>
+</li>
+</ul>
+</div><div class="toc-menu"><a class="expand-toggle" href="#">全部展開</a><a class="back-to-top" href="#">回到頂部</a><a class="go-to-bottom" href="#">移至底部</a></div>
+            </ul>
+        </div>
+    </div>
+    <div id="ui-toc-affix" class="ui-affix-toc ui-toc-dropdown unselectable hidden-print" data-spy="affix" style="top:17px;display:none;"  >
+        <div class="toc"><ul class="nav">
+<li><a href="#SonarQube-使用-Docker-架設-SonarQube-與-CNES-Report-Plugin-匯出-PDF-報告，結合Intellij-IDEA-Plugin-SonarAnalyzer-同時進行源碼掃描與遠端同步產製報告" title="[SonarQube] 使用 Docker 架設 SonarQube 與 CNES Report Plugin 匯出 PDF 報告，結合Intellij IDEA Plugin: SonarAnalyzer 同時進行源碼掃描與遠端同步產製報告">[SonarQube] 使用 Docker 架設 SonarQube 與 CNES Report Plugin 匯出 PDF 報告，結合Intellij IDEA Plugin: SonarAnalyzer 同時進行源碼掃描與遠端同步產製報告</a><ul class="nav">
+<li><a href="#前言：" title="前言：">前言：</a></li>
+<li><a href="#使用-Docker-架設-SonarQube" title="使用 Docker 架設 SonarQube">使用 Docker 架設 SonarQube</a><ul class="nav">
+<li><a href="#Step-1-下載-Docker-Image" title="Step 1. 下載 Docker Image">Step 1. 下載 Docker Image</a></li>
+<li><a href="#Step-2-打開-SonarQube" title="Step 2. 打開 SonarQube">Step 2. 打開 SonarQube</a></li>
+<li><a href="#Step-3-使用-SonarQube-手動建立項目" title="Step 3. 使用 SonarQube 手動建立項目">Step 3. 使用 SonarQube 手動建立項目</a></li>
+<li><a href="#Step-4--用-Terminal-指定到自己的專案目錄，貼上指令" title="Step 4 . 用 Terminal 指定到自己的專案目錄，貼上指令">Step 4 . 用 Terminal 指定到自己的專案目錄，貼上指令</a></li>
+<li><a href="#Step-5-回到原本的-SonarQube-網頁" title="Step 5. 回到原本的 SonarQube 網頁">Step 5. 回到原本的 SonarQube 網頁</a></li>
+</ul>
+</li>
+<li><a href="#掛載-CNES-Report-Plugin-到-docker-container-匯出-PDF-報告" title="掛載 CNES Report Plugin 到 docker container 匯出 PDF 報告">掛載 CNES Report Plugin 到 docker container 匯出 PDF 報告</a><ul class="nav">
+<li><a href="#SonarQube-CNES-Report" title="SonarQube CNES Report">SonarQube CNES Report</a></li>
+<li><a href="#Step-1-進入-Release-頁面-選擇對應的-Release-jar" title="Step 1. 進入 Release 頁面 選擇對應的 Release jar">Step 1. 進入 Release 頁面 選擇對應的 Release jar</a></li>
+<li><a href="#Step-2-解壓縮-Jar-檔，放在桌面" title="Step 2. 解壓縮 Jar 檔，放在桌面">Step 2. 解壓縮 Jar 檔，放在桌面</a></li>
+<li><a href="#Step-3-進到Docker-containter-內部" title="Step 3. 進到Docker containter 內部">Step 3. 進到Docker containter 內部</a></li>
+<li><a href="#Step-4--回到-SonarQube-主頁" title="Step 4 . 回到 SonarQube 主頁">Step 4 . 回到 SonarQube 主頁</a></li>
+</ul>
+</li>
+<li><a href="#Intellij-IDEA-Plugin-SonarAnalyzer-同時進行源碼掃描與遠端同步產製報告" title="Intellij IDEA Plugin: SonarAnalyzer 同時進行源碼掃描與遠端同步產製報告">Intellij IDEA Plugin: SonarAnalyzer 同時進行源碼掃描與遠端同步產製報告</a></li>
+<li><a href="#reference" title="reference:">reference:</a></li>
+</ul>
+</li>
+</ul>
+</div><div class="toc-menu"><a class="expand-toggle" href="#">全部展開</a><a class="back-to-top" href="#">回到頂部</a><a class="go-to-bottom" href="#">移至底部</a></div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gist-embed/2.6.0/gist-embed.min.js" integrity="sha256-KyF2D6xPIJUW5sUDSs93vWyZm+1RzIpKCexxElmxl8g=" crossorigin="anonymous" defer></script>
+    <script>
+        var markdown = $(".markdown-body");
+        //smooth all hash trigger scrolling
+        function smoothHashScroll() {
+            var hashElements = $("a[href^='#']").toArray();
+            for (var i = 0; i < hashElements.length; i++) {
+                var element = hashElements[i];
+                var $element = $(element);
+                var hash = element.hash;
+                if (hash) {
+                    $element.on('click', function (e) {
+                        // store hash
+                        var hash = this.hash;
+                        if ($(hash).length <= 0) return;
+                        // prevent default anchor click behavior
+                        e.preventDefault();
+                        // animate
+                        $('body, html').stop(true, true).animate({
+                            scrollTop: $(hash).offset().top
+                        }, 100, "linear", function () {
+                            // when done, add hash to url
+                            // (default click behaviour)
+                            window.location.hash = hash;
+                        });
+                    });
+                }
+            }
+        }
+
+        smoothHashScroll();
+        var toc = $('.ui-toc');
+        var tocAffix = $('.ui-affix-toc');
+        var tocDropdown = $('.ui-toc-dropdown');
+        //toc
+        tocDropdown.click(function (e) {
+            e.stopPropagation();
+        });
+
+        var enoughForAffixToc = true;
+
+        function generateScrollspy() {
+            $(document.body).scrollspy({
+                target: ''
+            });
+            $(document.body).scrollspy('refresh');
+            if (enoughForAffixToc) {
+                toc.hide();
+                tocAffix.show();
+            } else {
+                tocAffix.hide();
+                toc.show();
+            }
+            $(document.body).scroll();
+        }
+
+        function windowResize() {
+            //toc right
+            var paddingRight = parseFloat(markdown.css('padding-right'));
+            var right = ($(window).width() - (markdown.offset().left + markdown.outerWidth() - paddingRight));
+            toc.css('right', right + 'px');
+            //affix toc left
+            var newbool;
+            var rightMargin = (markdown.parent().outerWidth() - markdown.outerWidth()) / 2;
+            //for ipad or wider device
+            if (rightMargin >= 133) {
+                newbool = true;
+                var affixLeftMargin = (tocAffix.outerWidth() - tocAffix.width()) / 2;
+                var left = markdown.offset().left + markdown.outerWidth() - affixLeftMargin;
+                tocAffix.css('left', left + 'px');
+            } else {
+                newbool = false;
+            }
+            if (newbool != enoughForAffixToc) {
+                enoughForAffixToc = newbool;
+                generateScrollspy();
+            }
+        }
+        $(window).resize(function () {
+            windowResize();
+        });
+        $(document).ready(function () {
+            windowResize();
+            generateScrollspy();
+        });
+
+        //remove hash
+        function removeHash() {
+            window.location.hash = '';
+        }
+
+        var backtotop = $('.back-to-top');
+        var gotobottom = $('.go-to-bottom');
+
+        backtotop.click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (scrollToTop)
+                scrollToTop();
+            removeHash();
+        });
+        gotobottom.click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (scrollToBottom)
+                scrollToBottom();
+            removeHash();
+        });
+
+        var toggle = $('.expand-toggle');
+        var tocExpand = false;
+
+        checkExpandToggle();
+        toggle.click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            tocExpand = !tocExpand;
+            checkExpandToggle();
+        })
+
+        function checkExpandToggle () {
+            var toc = $('.ui-toc-dropdown .toc');
+            var toggle = $('.expand-toggle');
+            if (!tocExpand) {
+                toc.removeClass('expand');
+                toggle.text('Expand all');
+            } else {
+                toc.addClass('expand');
+                toggle.text('Collapse all');
+            }
+        }
+
+        function scrollToTop() {
+            $('body, html').stop(true, true).animate({
+                scrollTop: 0
+            }, 100, "linear");
+        }
+
+        function scrollToBottom() {
+            $('body, html').stop(true, true).animate({
+                scrollTop: $(document.body)[0].scrollHeight
+            }, 100, "linear");
+        }
+    </script>
+</body>
+
+</html>
